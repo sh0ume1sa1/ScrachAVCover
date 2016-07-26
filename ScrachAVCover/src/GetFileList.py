@@ -5,6 +5,7 @@ directory in your computer
 written at 2013/06/11 ver 0.1
 updated at 2014/03/20 ver 0.2
 updated at 2014/10/25 fix [cover is not available on web] error
+test
 """
 
 __author__ = 'jimmy'
@@ -85,4 +86,4 @@ for ele in readFileIntoList(TARGETDIR):
             else:
                 print "Not found the cover for " + avCode + "\n"
 
-                print "test is not a null is not cally "
+               print "test is not a null is not cally "
