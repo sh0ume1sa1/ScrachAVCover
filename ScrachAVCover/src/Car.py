@@ -13,18 +13,19 @@ import logging
 
 CAR_COVER_DL_DIR = "..\\cover"
 TARGET_CAR_LIST = ".\\res\\target.json"
-DML_URL_FORSEARCH = "http://www.dmm.co.jp/rental/monthly/-/search/" \
-                "=/searchstr=TESTTEST/floor=dvd/"
-class Car():
+DML_URL_FORSEARCH = "https://www.dmm.co.jp/mono/dvd/-/search/=/searchstr=TESTTEST/"
+class Car(object):
     car_url_forsearch = ""
-    car_no = ""
-    car_nm = ""
-    car_cover_url = ""
+    car_no_forseach =""
+    car_no = []
+    car_nm = []
+    car_cover_url = []
     car_cover_ext =""
     
     @classmethod
     def get_car_cover_ext(cls):
-        return "." + cls.car_cover_url.split(".")[-1]
+        # return "." + cls.car_cover_url.split(".")[-1]
+        return ".jpg"
     
     @classmethod
     def get_car_no(cls):
@@ -32,7 +33,7 @@ class Car():
     
     @classmethod
     def get_car_url_forsearch(cls):
-        return DML_URL_FORSEARCH.replace('TESTTEST', cls.car_no)
+        return DML_URL_FORSEARCH.replace('TESTTEST', cls.car_no_forseach)
   
     @classmethod
     def get_car_cover_url(cls):
@@ -43,8 +44,8 @@ class Car():
         return cls.car_nm
     
     @classmethod
-    def __init__(cls, car_no):
-        cls.car_no = car_no
+    def __init__(cls, car_no_forseach):
+        cls.car_no_forseach = car_no_forseach
         cls.car_url_forsearch = cls.get_car_url_forsearch()
 
     @classmethod
@@ -53,9 +54,13 @@ class Car():
             #get the url of dmm
             html = urllib.request.urlopen(cls.car_url_forsearch).read()
             soup = BeautifulSoup(html,'html.parser')
-            car_info = soup.findAll('p',{"class":"tmb"})
-            cls.car_cover_url='http:' + str(car_info[0].find_all('span',{"class":"img"})[0].find('img')["src"])
-            cls.car_nm = car_info[0].findAll('span',{"class":"txt"})[0].text
+            car_info_rst = soup.find_all('p',{"class":"tmb"})
+            #when come to several results
+            for car_info in car_info_rst:
+                cls.car_cover_url.append('http:' + str(car_info.find_all('span',{"class":"img"})[0].find('img')["src"]))
+                cls.car_nm.append(car_info.find_all('span',{"class":"txt"})[0].text)
+                #todo
+                cls.car_no.append(car_info.find_all('span',{"class":"txt"})[0].text) 
         except Exception as e:
             logging.exception(e)
 
@@ -67,7 +72,8 @@ def validated_car_no(car_no):
 
 def dl_car_cover(car):
     dl_as_file =  CAR_COVER_DL_DIR + "\\" + car.get_car_no() + car.get_car_cover_ext()
-    urllib.request.urlretrieve(car.get_car_cover_url(), dl_as_file)
+    for url in car.get_car_cover_url():
+        urllib.request.urlretrieve(url, dl_as_file)
     
 if __name__ == '__main__':
     args = sys.argv
@@ -75,10 +81,12 @@ if __name__ == '__main__':
         print("usage : python car.py car-no")
     else:
         car = Car(args[1])
-        if validated_car_no(car.get_car_no()):
+        if validated_car_no(args[1]):
             car.get_car_cover_info()
-            print(car.get_car_no()+" from "+car.get_car_cover_url()+"\n")
-            dl_car_cover(car)
+            #print(car.get_car_nm()+" from "+car.get_car_cover_url()+"\n")
+            print(car.get_car_url_forsearch())
+            print(car.get_car_cover_url())
+            #dl_car_cover(car)
         else:
             print("car-no is not properiate")
     
