@@ -20,7 +20,7 @@ class Car(object):
     car_no = []
     car_nm = []
     car_cover_url = []
-    car_cover_ext =""
+    car_cover_file =""
     
     @classmethod
     def get_car_cover_ext(cls):
@@ -57,10 +57,13 @@ class Car(object):
             car_info_rst = soup.find_all('p',{"class":"tmb"})
             #when come to several results
             for car_info in car_info_rst:
-                cls.car_cover_url.append('http:' + str(car_info.find_all('span',{"class":"img"})[0].find('img')["src"]))
-                cls.car_nm.append(car_info.find_all('span',{"class":"txt"})[0].text)
-                #todo
-                cls.car_no.append(car_info.find_all('span',{"class":"txt"})[0].text) 
+                car_info_url = 'http:' + str(car_info.find_all('span',{"class":"img"})[0].find('img')["src"])
+                # filter 
+                if filter_car_no(car_info_url, cls.car_no_forseach):
+                    cls.car_cover_url.append(car_info_url)
+                    cls.car_nm.append(car_info.find_all('span',{"class":"txt"})[0].text)
+                    #todo
+                    cls.car_no.append(car_info.find_all('span',{"class":"txt"})[0].text) 
         except Exception as e:
             logging.exception(e)
 
@@ -70,10 +73,21 @@ def validated_car_no(car_no):
     regex = r'\w{2,5}\D*\d{1,5}$'
     return re.match(regex, car_no)
 
+#car_no_forsearch is criticaly the substr of cover file name
+def filter_car_no(car_url, key):
+    car_file = car_url.split("/")[-1]
+    # without - and all upercase
+    return key.lower().replace("-","") in car_file
+
+#download
 def dl_car_cover(car):
     dl_as_file =  CAR_COVER_DL_DIR + "\\" + car.get_car_no() + car.get_car_cover_ext()
     for url in car.get_car_cover_url():
         urllib.request.urlretrieve(url, dl_as_file)
+        
+
+    
+    
     
 if __name__ == '__main__':
     args = sys.argv
