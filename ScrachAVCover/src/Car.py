@@ -57,7 +57,7 @@ class Car(object):
             car_info_rst = soup.find_all('p',{"class":"tmb"})
             #when come to several results
             for car_info in car_info_rst:
-                car_info_url = 'http:' + str(car_info.find_all('span',{"class":"img"})[0].find('img')["src"])
+                car_info_url = 'https:' + str(car_info.find_all('span',{"class":"img"})[0].find('img')["src"])
                 # filter 
                 if filter_car_no(car_info_url, cls.car_no_forseach):
                     cls.car_cover_url.append(car_info_url)
