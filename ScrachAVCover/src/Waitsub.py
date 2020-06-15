@@ -83,20 +83,31 @@ class Subtitle(object):
         html = urllib.request.urlopen(COMMON_HEAD+move_url).read()
         soup = BeautifulSoup(html,'html.parser')
         all_sub = soup.find_all('tr',id=re.compile(r'^name\d{7}$')) #nameXXXXXXX subid 7 digital
-        for one_sub in all_sub:
-            sub_id = one_sub.find_all('td')[0]['id']
-            subName = one_sub.find_all('td')[0].text
-            uploadYmd = one_sub.find_all('td')[3].find('time').text
-            subUrl = one_sub.find_all('td')[4].find('a')['href']
-            rating = one_sub.find_all('td')[5].find('span').text + '/' + one_sub.find_all('td')[5].find('span')['title']
-            single_sub = {
-            	  "subName": subName,
-                "rating":rating,
-                "uploadYmd":uploadYmd,
-                "subUrl":subUrl
-                }
-            print(single_sub)
+        if (all_sub != None):
+          #several subtitle
+          for one_sub in all_sub:
+              sub_id = one_sub.find_all('td')[0]['id']
+              subName = one_sub.find_all('td')[0].text
+              uploadYmd = one_sub.find_all('td')[3].find('time').text
+              subUrl = one_sub.find_all('td')[4].find('a')['href']
+              rating = one_sub.find_all('td')[5].find('span').text + '/' + one_sub.find_all('td')[5].find('span')['title']
+              single_sub = {
+                  "subName": subName,
+                  "rating":rating,
+                  "uploadYmd":uploadYmd,
+                  "subUrl":subUrl
+                  }
+              #print(single_sub)
+        else:
+          # single subtile
+          single_sub = {  
+                  "subName": 'subName',
+                  "rating":'rating',
+                  "uploadYmd":'uploadYmd',
+                  "subUrl":'subUrl'
+          }
         rtn = rtn.append(single_sub)
+        print(rtn)
         return rtn
                       
     @classmethod
