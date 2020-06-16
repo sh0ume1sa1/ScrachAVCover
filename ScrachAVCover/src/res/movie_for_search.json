@@ -1,0 +1,6 @@
+[
+    {"name":"wonder woman","year":"2020","wanted":false},
+    {"name":"spider-man","year":"2017","wanted":false},
+    {"name":"men in black","year":"2019","wanted":true},
+    {"name":"avengers","year":"2019","wanted":false}
+]
