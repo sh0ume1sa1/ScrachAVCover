@@ -42,6 +42,7 @@ class Subtitle(object):
             "wanted": True,
             "movie_url": "search/sublanguageid-jpn/idmovie-MOVIEID",
             "found": False,
+            "total": 0,
             "lastFound": "",
             "subList": []
         } 
@@ -55,8 +56,9 @@ class Subtitle(object):
             movie_object['year'] = movie_info['year']
             movie_object['movie_url'] = movie_object['movie_url'].replace('MOVIEID',str(movie_info['id']))
             movie_object['found'] = True
+            movie_object['total'] = movie_info['total']
             movie_object['lastFound'] = str(datetime.date.today())
-            movie_object['subList'] = cls.get_sub_info(movie_object['movie_url'])
+            movie_object['subList'] = cls.get_sub_info(movie_object)
         cls.movie_target.append(movie_object)
     
     @classmethod
@@ -68,8 +70,10 @@ class Subtitle(object):
             for movie_info in movies_info: 
                 if (cls.movie_year != ''):
                     if (movie_info['year'] == cls.movie_year):
+                        print("===MOVIE NAME:",movie_info['name'],movie_info['year'],sep=' ')
                         cls.set_movie_object(movie_info)
                 else:
+                    print("===MOVIE NAME:",movie_info['name'],movie_info['year'],sep=' ')
                     cls.set_movie_object(movie_info)
                     
             #print(cls.movie_target)
@@ -77,36 +81,44 @@ class Subtitle(object):
             logging.exception(e)
     
     @classmethod
-    def get_sub_info(cls, move_url):
+    def get_sub_info(cls, movie_object):
         rtn=[]
-        print(COMMON_HEAD+move_url)
-        html = urllib.request.urlopen(COMMON_HEAD+move_url).read()
+        movie_url = movie_object['movie_url']
+        print(movie_object['total']+' subs')
+        html = urllib.request.urlopen(COMMON_HEAD+movie_url).read()
         soup = BeautifulSoup(html,'html.parser')
-        all_sub = soup.find_all('tr',id=re.compile(r'^name\d{7}$')) #nameXXXXXXX subid 7 digital
-        if (all_sub != None):
-          #several subtitle
-          for one_sub in all_sub:
-              sub_id = one_sub.find_all('td')[0]['id']
-              subName = one_sub.find_all('td')[0].text
-              uploadYmd = one_sub.find_all('td')[3].find('time').text
-              subUrl = one_sub.find_all('td')[4].find('a')['href']
-              rating = one_sub.find_all('td')[5].find('span').text + '/' + one_sub.find_all('td')[5].find('span')['title']
-              single_sub = {
-                  "subName": subName,
-                  "rating":rating,
-                  "uploadYmd":uploadYmd,
-                  "subUrl":subUrl
-                  }
-              #print(single_sub)
+        if (int(movie_object['total']) > 1):
+            #more than one subtitile
+            print(COMMON_HEAD + movie_url)
+            all_sub = soup.find_all('tr',id=re.compile(r'^name\d{7}$')) #nameXXXXXXX subid 7 digital
+            for one_sub in all_sub:
+                sub_id = one_sub.find_all('td')[0]['id'].replace('main','')
+                subName = one_sub.find_all('td')[0].text.replace('Watch onlineDownload Subtitles Searcher','')
+                uploadYmd = one_sub.find_all('td')[3].find('time').text.split("/")
+                subUrl = one_sub.find_all('td')[4].find('a')['href']
+                rating = one_sub.find_all('td')[5].find('span').text + '/' + one_sub.find_all('td')[5].find('span')['title']
+                single_sub = {
+                    "subId": sub_id,
+                    "subName": subName,
+                    "rating":rating,
+                    "uploadYmd":uploadYmd[2]+uploadYmd[1]+uploadYmd[0],
+                    "subUrl":subUrl
+                }
+                #print(single_sub)
+                rtn.append(single_sub)
         else:
-          # single subtile
-          single_sub = {  
-                  "subName": 'subName',
-                  "rating":'rating',
+            #only one subtitile, html rendered differently
+            subUrl = soup.find('a',download='download')['href']
+            sub_id = soup.find('a',download='download')['data-product-id']
+            subName = soup.find('a',download='download')['data-product-name']
+            single_sub = {  
+                  "subId": sub_id,
+                  "subName": subName,
+                  "rating":'0/0',
                   "uploadYmd":'uploadYmd',
-                  "subUrl":'subUrl'
-          }
-        rtn = rtn.append(single_sub)
+                  "subUrl":subUrl
+            }
+            rtn.append(single_sub)
         print(rtn)
         return rtn
                       
