@@ -122,8 +122,8 @@ class Subtitle(object):
             single_sub = {  
                   "subId": sub_id,
                   "subName": subName,
-                  "rating":'0/0',
-                  "uploadYmd":'uploadYmd',
+                  "rating":'TODO',
+                  "uploadYmd":'TODO',
                   "subUrl":subUrl
             }
             rtn.append(single_sub)
