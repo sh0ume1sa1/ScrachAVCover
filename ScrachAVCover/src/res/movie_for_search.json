@@ -1,6 +1,8 @@
 [
     {"name":"wonder woman","year":"2020","wanted":false},
     {"name":"spider-man","year":"2017","wanted":false},
-    {"name":"men in black","year":"2019","wanted":true},
-    {"name":"avengers","year":"2019","wanted":false}
+    {"name":"men in black","year":"2019","wanted":false},
+    {"name":"21 bridges","year":"2019","wanted":true},
+    {"name":"1917","year":"2019","wanted":true},
+    {"name":"DON T DELETE THIS LINE","year":"2000","wanted":false}
 ]

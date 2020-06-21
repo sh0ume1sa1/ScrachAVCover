@@ -18,7 +18,9 @@ import re,sys,logging
 import datetime
 
 SUB_DL_DIR = "..\\sub"
-MOVIE_FOR_SEARCH = ".\\res\\movie_for_search.json"
+# MOVIE_FOR_SEARCH = ".\\res\\movie_for_search.json"
+MOVIE_FOR_SEARCH = "./res/movie_for_search.json"
+
 GMAIL =""
 MAIL_TITLE ="あなたがほしい字幕ができました！"
 MAIL_TXT ="映画: %s "
@@ -27,6 +29,7 @@ SUB_URL_FORSEARCH="https://www.opensubtitles.org/libs/suggest.php?format=json3&M
 SUB_URL="https://www.opensubtitles.org/en/subtitleserve/sub/SUBID"
 SUB_DL_URL="http://dl.opensubtitles.org/en/download/sub/SUBID"
 MOVIE_URL="https://www.opensubtitles.org/en/search/sublanguageid-jpn/idmovie-MOVIEID"
+DEBUG = False
 
 class Subtitle(object):
     movie_title = ""
@@ -34,6 +37,7 @@ class Subtitle(object):
     sub_url_forsearch = ""
     sub_file_name = []
     movie_target = []
+    debug = False
     
     @classmethod
     def get_movie_object(cls):
@@ -51,6 +55,7 @@ class Subtitle(object):
     
     @classmethod
     def set_movie_object(cls,movie_info):
+        _print('koko4')
         movie_object = cls.get_movie_object()
         if (movie_info != []):
             movie_object['id'] = movie_info['name']+'-'+movie_info['year']
@@ -66,10 +71,13 @@ class Subtitle(object):
     @classmethod
     def get_movie_info(cls):
         try:
+            _print('koko5')
             r_get = requests.get(cls.sub_url_forsearch)
-            #print(cls.sub_url_forsearch)
-            movies_info = json.loads(r_get.text)
+            _print(cls.sub_url_forsearch)
+            _print(r_get)
             
+            movies_info = json.loads(r_get.text)
+            _print(movies_info)
             for movie_info in movies_info: 
                 if (cls.movie_year != ''):
                     if (movie_info['year'] == cls.movie_year):
@@ -85,14 +93,17 @@ class Subtitle(object):
     
     @classmethod
     def get_sub_info(cls, movie_object):
+        _print("koko2")
         rtn=[]
         movie_url = movie_object['movie_url']
         print(movie_object['name'],movie_object['total']+' subs')
         html = urllib.request.urlopen(COMMON_HEAD+movie_url).read()
         soup = BeautifulSoup(html,'html.parser')
         if (int(movie_object['total']) > 1):
-            #more than one subtitile
+            _print("koko")
+        #more than one subtitile
             all_sub = soup.find_all('tr',id=re.compile(r'^name\d{3,9}$')) #nameXXXXXXX subid 3~7 digital
+            print(all_sub)
             for one_sub in all_sub:
                 sub_id = one_sub.find_all('td')[0]['id'].replace('main','')
                 subName = one_sub.find_all('td')[0].text.replace('Watch onlineDownload Subtitles Searcher','')
@@ -146,7 +157,11 @@ def send_mail(sub):
         for s in m['subList']:
             print("--- ",s['subName'].replace('\n',' '))
             print("---","uploaded on:",s['uploadYmd'],"rating:", s['rating'],s['subUrl'])
-                  
+            
+def _print(obj):
+    if DEBUG:
+        print(obj)
+
 if __name__ == '__main__':
     args = sys.argv
     if  len(args) <=1:
@@ -166,6 +181,8 @@ if __name__ == '__main__':
     else:
         #command line for test
         sub = Subtitle(args[1], args[2] if len(args)>=3 else '')
+        DEBUG = True
+        _print("koko3")
         sub.get_movie_info()
         print(sub.movie_target)
         
