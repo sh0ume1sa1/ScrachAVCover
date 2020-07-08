@@ -1,0 +1,7 @@
+{
+    "COMMON_HEAD":"https://www.opensubtitles.org/en/",
+    "SUB_URL_FORSEARCH": "https://www.opensubtitles.org/libs/suggest.php?format=json3&MovieName=TESTTEST&SubLanguageID=jpn",
+    "SUB_URL" :"https://www.opensubtitles.org/en/subtitleserve/sub/SUBID",
+    "SUB_DL_URL" : "http://dl.opensubtitles.org/en/download/sub/SUBID",
+    "MOVIE_URL" : "https://www.opensubtitles.org/en/search/sublanguageid-jpn/idmovie-MOVIEID"
+}
